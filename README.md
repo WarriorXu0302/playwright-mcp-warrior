@@ -1,25 +1,27 @@
-## Playwright MCP
+# Playwright MCP 集群版
 
-A Model Context Protocol (MCP) server that provides browser automation capabilities using [Playwright](https://playwright.dev). This server enables LLMs to interact with web pages through structured accessibility snapshots, bypassing the need for screenshots or visually-tuned models.
+一个基于Model Context Protocol (MCP)的浏览器自动化服务器，使用[Playwright](https://playwright.dev)提供强大的Web自动化能力。此项目在原版基础上增加了**集群管理**、**隔离模式**和**完整的工具测试功能**。
 
-### Key Features
+## 🌟 核心特性
 
-- **Fast and lightweight**. Uses Playwright's accessibility tree, not pixel-based input.
-- **LLM-friendly**. No vision models needed, operates purely on structured data.
-- **Deterministic tool application**. Avoids ambiguity common with screenshot-based approaches.
+- **🚀 快速轻量**：基于Playwright的可访问性树，无需基于像素的输入
+- **🤖 LLM友好**：无需视觉模型，纯结构化数据操作
+- **🎯 确定性工具**：避免基于截图方法的模糊性
+- **🐳 集群支持**：支持多实例并发，提高处理能力
+- **🔒 隔离模式**：每个实例独立运行，避免配置冲突
+- **🇨🇳 中文优化**：支持国内网站测试和中文界面
+- **🛠️ 智能管理**：自动检测和管理本地/Docker混合环境
 
-### Requirements
-- Node.js 18 or newer
-- VS Code, Cursor, Windsurf, Claude Desktop, Goose or any other MCP client
+## 🛠️ 环境要求
 
-<!--
-// Generate using:
-node utils/generate-links.js
--->
+- Node.js 18 或更新版本
+- Docker (可选，用于容器化部署)
+- Python 3.8+ (用于集群管理脚本)
+- VS Code, Cursor, Windsurf, Claude Desktop, Goose 或其他MCP客户端
 
-### Getting started
+## 🚀 快速开始
 
-First, install the Playwright MCP server with your client. A typical configuration looks like this:
+### 单实例模式
 
 ```js
 {
@@ -34,794 +36,486 @@ First, install the Playwright MCP server with your client. A typical configurati
 }
 ```
 
-[<img src="https://img.shields.io/badge/VS_Code-VS_Code?style=flat-square&label=Install%20Server&color=0098FF" alt="Install in VS Code">](https://insiders.vscode.dev/redirect?url=vscode%3Amcp%2Finstall%3F%257B%2522name%2522%253A%2522playwright%2522%252C%2522command%2522%253A%2522npx%2522%252C%2522args%2522%253A%255B%2522%2540playwright%252Fmcp%2540latest%2522%255D%257D) [<img alt="Install in VS Code Insiders" src="https://img.shields.io/badge/VS_Code_Insiders-VS_Code_Insiders?style=flat-square&label=Install%20Server&color=24bfa5">](https://insiders.vscode.dev/redirect?url=vscode-insiders%3Amcp%2Finstall%3F%257B%2522name%2522%253A%2522playwright%2522%252C%2522command%2522%253A%2522npx%2522%252C%2522args%2522%253A%255B%2522%2540playwright%252Fmcp%2540latest%2522%255D%257D)
+### 集群模式（推荐）
 
-
-<details><summary><b>Install in VS Code</b></summary>
-
-You can also install the Playwright MCP server using the VS Code CLI:
-
+1. **本地集群启动**：
 ```bash
-# For VS Code
-code --add-mcp '{"name":"playwright","command":"npx","args":["@playwright/mcp@latest"]}'
+# 启动5个实例集群，默认启用隔离模式
+./start.sh
+
+# 指定配置文件
+./start.sh --config cluster_config.json
+
+# 禁用隔离模式
+./start.sh --no-isolated
 ```
 
-After installation, the Playwright MCP server will be available for use with your GitHub Copilot agent in VS Code.
-</details>
-
-<details>
-<summary><b>Install in Cursor</b></summary>
-
-#### Click the button to install:
-
-[![Install MCP Server](https://cursor.com/deeplink/mcp-install-dark.svg)](https://cursor.com/install-mcp?name=playwright&config=eyJjb21tYW5kIjoibnB4IEBwbGF5d3JpZ2h0L21jcEBsYXRlc3QifQ%3D%3D)
-
-#### Or install manually:
-
-Go to `Cursor Settings` -> `MCP` -> `Add new MCP Server`. Name to your liking, use `command` type with the command `npx @playwright/mcp`. You can also verify config or add command like arguments via clicking `Edit`.
-
-```js
-{
-  "mcpServers": {
-    "playwright": {
-      "command": "npx",
-      "args": [
-        "@playwright/mcp@latest"
-      ]
-    }
-  }
-}
-```
-</details>
-
-<details>
-<summary><b>Install in Windsurf</b></summary>
-
-Follow Windsurf MCP [documentation](https://docs.windsurf.com/windsurf/cascade/mcp). Use following configuration:
-
-```js
-{
-  "mcpServers": {
-    "playwright": {
-      "command": "npx",
-      "args": [
-        "@playwright/mcp@latest"
-      ]
-    }
-  }
-}
-```
-</details>
-
-<details>
-<summary><b>Install in Claude Desktop</b></summary>
-
-Follow the MCP install [guide](https://modelcontextprotocol.io/quickstart/user), use following configuration:
-
-```js
-{
-  "mcpServers": {
-    "playwright": {
-      "command": "npx",
-      "args": [
-        "@playwright/mcp@latest"
-      ]
-    }
-  }
-}
-```
-</details>
-
-<details>
-<summary><b>Install in Claude Code</b></summary>
-
-Use the Claude Code CLI to add the Playwright MCP server:
-
+2. **Docker集群启动**：
 ```bash
-claude mcp add playwright npx @playwright/mcp@latest
-```
-</details>
+# 构建Docker镜像
+docker build -t playwright-mcp .
 
-<details>
-<summary><b>Install in Goose</b></summary>
-
-#### Click the button to install:
-
-[![Install in Goose](https://block.github.io/goose/img/extension-install-dark.svg)](https://block.github.io/goose/extension?cmd=npx&arg=%40playwright%2Fmcp%40latest&id=playwright&name=Playwright&description=Interact%20with%20web%20pages%20through%20structured%20accessibility%20snapshots%20using%20Playwright)
-
-#### Or install manually:
-
-Go to `Advanced settings` -> `Extensions` -> `Add custom extension`. Name to your liking, use type `STDIO`, and set the `command` to `npx @playwright/mcp`. Click "Add Extension".
-</details>
-
-<details>
-<summary><b>Install in Qodo Gen</b></summary>
-
-Open [Qodo Gen](https://docs.qodo.ai/qodo-documentation/qodo-gen) chat panel in VSCode or IntelliJ → Connect more tools → + Add new MCP → Paste the following configuration:
-
-```js
-{
-  "mcpServers": {
-    "playwright": {
-      "command": "npx",
-      "args": [
-        "@playwright/mcp@latest"
-      ]
-    }
-  }
-}
+# 启动Docker集群（自动隔离模式）
+./start.sh --docker
 ```
 
-Click <code>Save</code>.
-</details>
-
-<details>
-<summary><b>Install in Gemini CLI</b></summary>
-
-Follow the MCP install [guide](https://github.com/google-gemini/gemini-cli/blob/main/docs/tools/mcp-server.md#configure-the-mcp-server-in-settingsjson), use following configuration:
-
-```js
-{
-  "mcpServers": {
-    "playwright": {
-      "command": "npx",
-      "args": [
-        "@playwright/mcp@latest"
-      ]
-    }
-  }
-}
-```
-</details>
-
-### Configuration
-
-Playwright MCP server supports following arguments. They can be provided in the JSON configuration above, as a part of the `"args"` list:
-
-<!--- Options generated by update-readme.js -->
-
-```
-> npx @playwright/mcp@latest --help
-  --allowed-origins <origins>  semicolon-separated list of origins to allow the
-                               browser to request. Default is to allow all.
-  --blocked-origins <origins>  semicolon-separated list of origins to block the
-                               browser from requesting. Blocklist is evaluated
-                               before allowlist. If used without the allowlist,
-                               requests not matching the blocklist are still
-                               allowed.
-  --block-service-workers      block service workers
-  --browser <browser>          browser or chrome channel to use, possible
-                               values: chrome, firefox, webkit, msedge.
-  --browser-agent <endpoint>   Use browser agent (experimental).
-  --caps <caps>                comma-separated list of capabilities to enable,
-                               possible values: tabs, pdf, history, wait, files,
-                               install. Default is all.
-  --cdp-endpoint <endpoint>    CDP endpoint to connect to.
-  --config <path>              path to the configuration file.
-  --device <device>            device to emulate, for example: "iPhone 15"
-  --executable-path <path>     path to the browser executable.
-  --headless                   run browser in headless mode, headed by default
-  --host <host>                host to bind server to. Default is localhost. Use
-                               0.0.0.0 to bind to all interfaces.
-  --ignore-https-errors        ignore https errors
-  --isolated                   keep the browser profile in memory, do not save
-                               it to disk.
-  --image-responses <mode>     whether to send image responses to the client.
-                               Can be "allow", "omit", or "auto". Defaults to
-                               "auto", which sends images if the client can
-                               display them.
-  --no-sandbox                 disable the sandbox for all process types that
-                               are normally sandboxed.
-  --output-dir <path>          path to the directory for output files.
-  --port <port>                port to listen on for SSE transport.
-  --proxy-bypass <bypass>      comma-separated domains to bypass proxy, for
-                               example ".com,chromium.org,.domain.com"
-  --proxy-server <proxy>       specify proxy server, for example
-                               "http://myproxy:3128" or "socks5://myproxy:8080"
-  --save-trace                 Whether to save the Playwright Trace of the
-                               session into the output directory.
-  --storage-state <path>       path to the storage state file for isolated
-                               sessions.
-  --user-agent <ua string>     specify user agent string
-  --user-data-dir <path>       path to the user data directory. If not
-                               specified, a temporary directory will be created.
-  --viewport-size <size>       specify browser viewport size in pixels, for
-                               example "1280, 720"
-  --vision                     Run server that uses screenshots (Aria snapshots
-                               are used by default)
-```
-
-<!--- End of options generated section -->
-
-### User profile
-
-You can run Playwright MCP with persistent profile like a regular browser (default), or in the isolated contexts for the testing sessions.
-
-**Persistent profile**
-
-All the logged in information will be stored in the persistent profile, you can delete it between sessions if you'd like to clear the offline state.
-Persistent profile is located at the following locations and you can override it with the `--user-data-dir` argument.
-
+3. **集群管理**：
 ```bash
-# Windows
-%USERPROFILE%\AppData\Local\ms-playwright\mcp-{channel}-profile
+# 停止所有实例（智能检测）
+./stop.sh
 
-# macOS
-- ~/Library/Caches/ms-playwright/mcp-{channel}-profile
+# 仅停止本地实例
+./stop.sh --local
 
-# Linux
-- ~/.cache/ms-playwright/mcp-{channel}-profile
+# 仅停止Docker实例
+./stop.sh --docker
+
+# 强制停止并清理所有资源
+./stop.sh --force
+
+# 查看日志
+tail -f logs/mcp-*.log
 ```
 
-**Isolated**
+## 🔧 集群配置
 
-In the isolated mode, each session is started in the isolated profile. Every time you ask MCP to close the browser,
-the session is closed and all the storage state for this session is lost. You can provide initial storage state
-to the browser via the config's `contextOptions` or via the `--storage-state` argument. Learn more about the storage
-state [here](https://playwright.dev/docs/auth).
+### 集群配置文件 (cluster_config.json)
 
-```js
+```json
 {
-  "mcpServers": {
-    "playwright": {
-      "command": "npx",
-      "args": [
-        "@playwright/mcp@latest",
-        "--isolated",
-        "--storage-state={path/to/storage.json}"
-      ]
-    }
-  }
-}
-```
-
-### Configuration file
-
-The Playwright MCP server can be configured using a JSON configuration file. You can specify the configuration file
-using the `--config` command line option:
-
-```bash
-npx @playwright/mcp@latest --config path/to/config.json
-```
-
-<details>
-<summary>Configuration file schema</summary>
-
-```typescript
-{
-  // Browser configuration
-  browser?: {
-    // Browser type to use (chromium, firefox, or webkit)
-    browserName?: 'chromium' | 'firefox' | 'webkit';
-
-    // Keep the browser profile in memory, do not save it to disk.
-    isolated?: boolean;
-
-    // Path to user data directory for browser profile persistence
-    userDataDir?: string;
-
-    // Browser launch options (see Playwright docs)
-    // @see https://playwright.dev/docs/api/class-browsertype#browser-type-launch
-    launchOptions?: {
-      channel?: string;        // Browser channel (e.g. 'chrome')
-      headless?: boolean;      // Run in headless mode
-      executablePath?: string; // Path to browser executable
-      // ... other Playwright launch options
-    };
-
-    // Browser context options
-    // @see https://playwright.dev/docs/api/class-browser#browser-new-context
-    contextOptions?: {
-      viewport?: { width: number, height: number };
-      // ... other Playwright context options
-    };
-
-    // CDP endpoint for connecting to existing browser
-    cdpEndpoint?: string;
-
-    // Remote Playwright server endpoint
-    remoteEndpoint?: string;
+  "cluster": {
+    "instances": [
+      {
+        "id": "mcp-1",
+        "port": 9001,
+        "url": "http://localhost:9001/sse"
+      },
+      {
+        "id": "mcp-2", 
+        "port": 9002,
+        "url": "http://localhost:9002/sse"
+      },
+      {
+        "id": "mcp-3",
+        "port": 9003,
+        "url": "http://localhost:9003/sse"
+      },
+      {
+        "id": "mcp-4",
+        "port": 9004,
+        "url": "http://localhost:9004/sse"
+      },
+      {
+        "id": "mcp-5",
+        "port": 9005,
+        "url": "http://localhost:9005/sse"
+      }
+    ],
+    "max_concurrent_per_instance": 1,
+    "health_check_interval": 10,
+    "max_retries": 3
   },
-
-  // Server configuration
-  server?: {
-    port?: number;  // Port to listen on
-    host?: string;  // Host to bind to (default: localhost)
-  },
-
-  // List of enabled capabilities
-  capabilities?: Array<
-    'core' |    // Core browser automation
-    'tabs' |    // Tab management
-    'pdf' |     // PDF generation
-    'history' | // Browser history
-    'wait' |    // Wait utilities
-    'files' |   // File handling
-    'install' | // Browser installation
-    'testing'   // Testing
-  >;
-
-  // Enable vision mode (screenshots instead of accessibility snapshots)
-  vision?: boolean;
-
-  // Directory for output files
-  outputDir?: string;
-
-  // Network configuration
-  network?: {
-    // List of origins to allow the browser to request. Default is to allow all. Origins matching both `allowedOrigins` and `blockedOrigins` will be blocked.
-    allowedOrigins?: string[];
-
-    // List of origins to block the browser to request. Origins matching both `allowedOrigins` and `blockedOrigins` will be blocked.
-    blockedOrigins?: string[];
-  };
- 
-  /**
-   * Whether to send image responses to the client. Can be "allow", "omit", or "auto". 
-   * Defaults to "auto", images are omitted for Cursor clients and sent for all other clients.
-   */
-  imageResponses?: 'allow' | 'omit' | 'auto';
+  "browser": {
+    "headless": true,
+    "timeout": 30000,
+    "viewport": {
+      "width": 1280,
+      "height": 720
+    }
+  }
 }
 ```
-</details>
 
-### Standalone MCP server
+### Docker集群配置 (docker_cluster_config.json)
 
-When running headed browser on system w/o display or from worker processes of the IDEs,
-run the MCP server from environment with the DISPLAY and pass the `--port` flag to enable SSE transport.
+```json
+{
+  "cluster": {
+    "instances": [
+      {
+        "id": "docker-mcp-1",
+        "port": 9001,
+        "url": "http://localhost:9001/mcp"
+      },
+      {
+        "id": "docker-mcp-2",
+        "port": 9002,
+        "url": "http://localhost:9002/mcp"
+      },
+      {
+        "id": "docker-mcp-3",
+        "port": 9003,
+        "url": "http://localhost:9003/mcp"
+      },
+{
+        "id": "docker-mcp-4",
+        "port": 9004,
+        "url": "http://localhost:9004/mcp"
+      },
+      {
+        "id": "docker-mcp-5",
+        "port": 9005,
+        "url": "http://localhost:9005/mcp"
+      }
+    ]
+  }
+}
+```
+
+## 📋 管理脚本
+
+### 启动脚本 (start.sh)
+
+**功能**：智能启动集群，支持本地和Docker模式
+```bash
+./start.sh [选项]
+
+选项:
+  --config FILE       指定配置文件 (默认: cluster_config.json)
+  --no-isolated       禁用隔离模式
+  --docker           使用Docker模式启动
+  --help             显示帮助信息
+```
+
+**特性**：
+- ✅ 自动检测端口占用
+- ✅ 隔离模式配置（默认启用）
+- ✅ 健康检查和状态验证
+- ✅ 详细的启动日志和错误处理
+
+### 停止脚本 (stop.sh) - 🆕 全新升级
+
+**功能**：智能停止集群，支持混合环境管理
+```bash
+./stop.sh [选项]
+
+选项:
+  --local         仅停止本地实例
+  --docker        仅停止Docker实例
+  --all           停止所有实例（默认）
+  --force         强制停止并清理所有资源
+  --help          显示帮助信息
+```
+
+**特性**：
+- 🔍 **智能检测**：自动识别本地和Docker实例
+- 🎯 **精确控制**：支持选择性停止
+- 🧹 **彻底清理**：清理PID文件、临时文件、日志文件
+- 💪 **强制模式**：应急情况下的彻底清理
+- 📊 **状态验证**：确保停止操作完整性
+
+## 🔒 隔离模式
+
+隔离模式是本项目的重要特性，可以避免多实例间的浏览器配置冲突：
+
+### 特性
+- **独立配置文件**：每个实例使用单独的浏览器配置文件
+- **内存隔离**：会话数据不会相互干扰
+- **并发安全**：支持真正的并发操作
+- **自动清理**：停止时自动清理隔离产生的临时文件
+
+### 启用方式
+```bash
+# 本地模式（默认启用）
+./start.sh
+
+# Docker模式（自动启用）
+./start.sh --docker
+
+# 禁用隔离模式
+./start.sh --no-isolated
+```
+
+## 🧪 测试套件
+
+### 全工具测试（推荐）
+
+使用国内网站测试所有25个工具：
 
 ```bash
-npx @playwright/mcp@latest --port 8931
+# 测试所有工具（使用百度、腾讯、淘宝等国内网站）
+python3 test_all_tools_chinese.py
 ```
 
-And then in MCP client config, set the `url` to the SSE endpoint:
+**测试统计示例**：
+```
+🇨🇳 Playwright MCP 全工具测试 - 国内网站版
+======================================================================
+📊 测试统计:
+   总工具数: 25
+   测试成功: 16 (64.0%)
+   测试失败: 9
 
-```js
-{
-  "mcpServers": {
-    "playwright": {
-      "url": "http://localhost:8931/sse"
-    }
-  }
-}
+📈 功能分类统计:
+   导航控制: 3/3 (100.0%)
+   页面管理: 1/1 (100.0%) 
+   标签页管理: 3/4 (75.0%)
+   内容获取: 3/3 (100.0%)
+   网络监控: 2/2 (100.0%)
 ```
 
-<details>
-<summary><b>Docker</b></summary>
+### 集群功能测试
 
-**NOTE:** The Docker implementation only supports headless chromium at the moment.
+```bash
+# 集群管理测试
+python3 test_cluster_management.py
 
-```js
-{
-  "mcpServers": {
-    "playwright": {
-      "command": "docker",
-      "args": ["run", "-i", "--rm", "--init", "--pull=always", "mcr.microsoft.com/playwright/mcp"]
-    }
-  }
-}
+# Docker工具测试
+python3 test_docker_tools.py
+
+# 压力测试
+python3 test_stress.py
 ```
 
-You can build the Docker image yourself.
+### 完整演示
 
-```
-docker build -t mcr.microsoft.com/playwright/mcp .
-```
-</details>
+```bash
+# 完整功能演示
+python3 demo_complete.py
 
-<details>
-<summary><b>Programmatic usage</b></summary>
-
-```js
-import http from 'http';
-
-import { createConnection } from '@playwright/mcp';
-import { SSEServerTransport } from '@modelcontextprotocol/sdk/server/sse.js';
-
-http.createServer(async (req, res) => {
-  // ...
-
-  // Creates a headless Playwright MCP server with SSE transport
-  const connection = await createConnection({ browser: { launchOptions: { headless: true } } });
-  const transport = new SSEServerTransport('/messages', res);
-  await connection.sever.connect(transport);
-
-  // ...
-});
-```
-</details>
-
-### Tools
-
-The tools are available in two modes:
-
-1. **Snapshot Mode** (default): Uses accessibility snapshots for better performance and reliability
-2. **Vision Mode**: Uses screenshots for visual-based interactions
-
-To use Vision Mode, add the `--vision` flag when starting the server:
-
-```js
-{
-  "mcpServers": {
-    "playwright": {
-      "command": "npx",
-      "args": [
-        "@playwright/mcp@latest",
-        "--vision"
-      ]
-    }
-  }
-}
+# 简单演示
+python3 demo_simple.py
 ```
 
-Vision Mode works best with the computer use models that are able to interact with elements using
-X Y coordinate space, based on the provided screenshot.
-
-<!--- Tools generated by update-readme.js -->
-
-<details>
-<summary><b>Interactions</b></summary>
-
-<!-- NOTE: This has been generated via update-readme.js -->
-
-- **browser_snapshot**
-  - Title: Page snapshot
-  - Description: Capture accessibility snapshot of the current page, this is better than screenshot
-  - Parameters: None
-  - Read-only: **true**
-
-<!-- NOTE: This has been generated via update-readme.js -->
-
-- **browser_click**
-  - Title: Click
-  - Description: Perform click on a web page
-  - Parameters:
-    - `element` (string): Human-readable element description used to obtain permission to interact with the element
-    - `ref` (string): Exact target element reference from the page snapshot
-  - Read-only: **false**
-
-<!-- NOTE: This has been generated via update-readme.js -->
-
-- **browser_drag**
-  - Title: Drag mouse
-  - Description: Perform drag and drop between two elements
-  - Parameters:
-    - `startElement` (string): Human-readable source element description used to obtain the permission to interact with the element
-    - `startRef` (string): Exact source element reference from the page snapshot
-    - `endElement` (string): Human-readable target element description used to obtain the permission to interact with the element
-    - `endRef` (string): Exact target element reference from the page snapshot
-  - Read-only: **false**
-
-<!-- NOTE: This has been generated via update-readme.js -->
-
-- **browser_hover**
-  - Title: Hover mouse
-  - Description: Hover over element on page
-  - Parameters:
-    - `element` (string): Human-readable element description used to obtain permission to interact with the element
-    - `ref` (string): Exact target element reference from the page snapshot
-  - Read-only: **true**
-
-<!-- NOTE: This has been generated via update-readme.js -->
-
-- **browser_type**
-  - Title: Type text
-  - Description: Type text into editable element
-  - Parameters:
-    - `element` (string): Human-readable element description used to obtain permission to interact with the element
-    - `ref` (string): Exact target element reference from the page snapshot
-    - `text` (string): Text to type into the element
-    - `submit` (boolean, optional): Whether to submit entered text (press Enter after)
-    - `slowly` (boolean, optional): Whether to type one character at a time. Useful for triggering key handlers in the page. By default entire text is filled in at once.
-  - Read-only: **false**
-
-<!-- NOTE: This has been generated via update-readme.js -->
-
-- **browser_select_option**
-  - Title: Select option
-  - Description: Select an option in a dropdown
-  - Parameters:
-    - `element` (string): Human-readable element description used to obtain permission to interact with the element
-    - `ref` (string): Exact target element reference from the page snapshot
-    - `values` (array): Array of values to select in the dropdown. This can be a single value or multiple values.
-  - Read-only: **false**
-
-<!-- NOTE: This has been generated via update-readme.js -->
-
-- **browser_press_key**
-  - Title: Press a key
-  - Description: Press a key on the keyboard
-  - Parameters:
-    - `key` (string): Name of the key to press or a character to generate, such as `ArrowLeft` or `a`
-  - Read-only: **false**
-
-<!-- NOTE: This has been generated via update-readme.js -->
-
-- **browser_wait_for**
-  - Title: Wait for
-  - Description: Wait for text to appear or disappear or a specified time to pass
-  - Parameters:
-    - `time` (number, optional): The time to wait in seconds
-    - `text` (string, optional): The text to wait for
-    - `textGone` (string, optional): The text to wait for to disappear
-  - Read-only: **true**
-
-<!-- NOTE: This has been generated via update-readme.js -->
-
-- **browser_file_upload**
-  - Title: Upload files
-  - Description: Upload one or multiple files
-  - Parameters:
-    - `paths` (array): The absolute paths to the files to upload. Can be a single file or multiple files.
-  - Read-only: **false**
-
-<!-- NOTE: This has been generated via update-readme.js -->
+## 🌐 支持的测试网站
+
+项目针对国内网络环境优化，测试网站包括：
+- 🔍 **百度** (https://www.baidu.com)
+- 💬 **腾讯** (https://www.qq.com)
+- 🛒 **淘宝** (https://www.taobao.com)
+- 📦 **京东** (https://www.jd.com)
+- 🎬 **哔哩哔哩** (https://www.bilibili.com)
+
+## 🛠️ 工具列表
+
+### 核心功能
+- **browser_navigate** - 网页导航
+- **browser_snapshot** - 页面可访问性快照  
+- **browser_take_screenshot** - 页面截图
+- **browser_click** - 元素点击
+- **browser_type** - 文本输入
+
+### 页面管理  
+- **browser_new_page** - 新建页面
+- **browser_close_page** - 关闭页面
+- **browser_close** - 关闭浏览器
+
+### 标签页管理
+- **browser_tab_list** - 标签页列表
+- **browser_tab_new** - 新建标签页
+- **browser_tab_select** - 选择标签页
+- **browser_tab_close** - 关闭标签页
+
+### 导航控制
+- **browser_navigate_back** - 后退
+- **browser_navigate_forward** - 前进
+
+### 内容获取
+- **browser_get_page_content** - 获取页面内容
+- **browser_pdf_save** - 保存PDF
+- **browser_network_requests** - 网络请求
+- **browser_console_messages** - 控制台消息
+
+### 交互操作
+- **browser_hover** - 鼠标悬停
+- **browser_drag** - 拖拽操作
+- **browser_scroll** - 页面滚动
+- **browser_select_option** - 选择下拉框
+
+### 高级功能
+- **browser_evaluate** - JavaScript执行
+- **browser_wait_for** - 等待操作
+- **browser_resize** - 窗口调整
+- **browser_press_key** - 按键操作
+- **browser_generate_playwright_test** - 生成测试代码
+
+## 📁 项目结构
+
+```
+playwright-mcp/
+├── 🚀 启动脚本
+│   ├── start.sh              # 集群启动脚本（支持隔离模式）
+│   └── stop.sh               # 智能停止脚本（🆕 全新升级）
+├── ⚙️ 配置文件
+│   ├── cluster_config.json   # 本地集群配置
+│   └── docker_cluster_config.json # Docker集群配置
+├── 🧪 测试套件
+│   ├── test_all_tools_chinese.py   # 全工具中文网站测试
+│   ├── test_docker_tools.py        # Docker工具测试
+│   ├── test_cluster_management.py  # 集群管理测试
+│   └── test_stress.py              # 压力测试
+├── 🎭 演示脚本
+│   ├── demo_complete.py      # 完整功能演示
+│   └── demo_simple.py        # 简单演示
+├── 🐳 容器化
+│   └── Dockerfile           # Docker镜像构建
+└── 📚 文档
+    ├── README.md            # 主要文档（本文件）
+    └── README_CLUSTER.md    # 集群详细文档
+```
+
+## 🎯 使用场景
+
+### 1. 自动化测试
+```bash
+# 并发测试多个网站
+python3 test_stress.py
+```
+
+### 2. 数据采集
+```bash
+# 使用集群进行大规模数据采集
+python3 demo_complete.py
+```
+
+### 3. 监控检查
+```bash
+# 网站健康检查
+python3 test_cluster_management.py
+```
+
+### 4. 开发调试
+```bash
+# 启动单个实例进行调试
+./start.sh --config cluster_config.json
 
-- **browser_handle_dialog**
-  - Title: Handle a dialog
-  - Description: Handle a dialog
-  - Parameters:
-    - `accept` (boolean): Whether to accept the dialog.
-    - `promptText` (string, optional): The text of the prompt in case of a prompt dialog.
-  - Read-only: **false**
+# 完成后清理资源
+./stop.sh --force
+```
 
-</details>
+## 🚨 故障排除
 
-<details>
-<summary><b>Navigation</b></summary>
+### 常见问题
 
-<!-- NOTE: This has been generated via update-readme.js -->
+1. **端口冲突**
+```bash
+# 查看端口占用
+lsof -i :9001-9005
 
-- **browser_navigate**
-  - Title: Navigate to a URL
-  - Description: Navigate to a URL
-  - Parameters:
-    - `url` (string): The URL to navigate to
-  - Read-only: **false**
+# 停止占用进程
+./stop.sh --force
+```
 
-<!-- NOTE: This has been generated via update-readme.js -->
+2. **Docker权限问题**
+```bash
+# 确保Docker正在运行
+docker version
 
-- **browser_navigate_back**
-  - Title: Go back
-  - Description: Go back to the previous page
-  - Parameters: None
-  - Read-only: **true**
+# 检查镜像
+docker images playwright-mcp
 
-<!-- NOTE: This has been generated via update-readme.js -->
+# 重建镜像
+docker build -t playwright-mcp .
+```
 
-- **browser_navigate_forward**
-  - Title: Go forward
-  - Description: Go forward to the next page
-  - Parameters: None
-  - Read-only: **true**
+3. **实例启动失败**
+```bash
+# 查看启动日志
+tail -f logs/mcp-*.log
 
-</details>
+# 检查配置文件
+cat cluster_config.json
+
+# 清理并重启
+./stop.sh --force && ./start.sh
+```
 
-<details>
-<summary><b>Resources</b></summary>
+### 日志管理
+```bash
+# 实时查看所有日志
+tail -f logs/mcp-*.log
 
-<!-- NOTE: This has been generated via update-readme.js -->
+# 查看特定实例日志  
+tail -f logs/mcp-mcp-1.log
 
-- **browser_take_screenshot**
-  - Title: Take a screenshot
-  - Description: Take a screenshot of the current page. You can't perform actions based on the screenshot, use browser_snapshot for actions.
-  - Parameters:
-    - `raw` (boolean, optional): Whether to return without compression (in PNG format). Default is false, which returns a JPEG image.
-    - `filename` (string, optional): File name to save the screenshot to. Defaults to `page-{timestamp}.{png|jpeg}` if not specified.
-    - `element` (string, optional): Human-readable element description used to obtain permission to screenshot the element. If not provided, the screenshot will be taken of viewport. If element is provided, ref must be provided too.
-    - `ref` (string, optional): Exact target element reference from the page snapshot. If not provided, the screenshot will be taken of viewport. If ref is provided, element must be provided too.
-  - Read-only: **true**
+# Docker容器日志
+docker logs mcp-instance-1
 
-<!-- NOTE: This has been generated via update-readme.js -->
+# 清理日志文件（强制模式）
+./stop.sh --force
+```
 
-- **browser_pdf_save**
-  - Title: Save as PDF
-  - Description: Save page as PDF
-  - Parameters:
-    - `filename` (string, optional): File name to save the pdf to. Defaults to `page-{timestamp}.pdf` if not specified.
-  - Read-only: **true**
+## 🔄 版本更新记录
 
-<!-- NOTE: This has been generated via update-readme.js -->
+### v2.1.0 - 🆕 最新版本
+- ✅ **智能停止脚本**：全新的stop.sh，支持混合环境管理
+- ✅ **自动检测功能**：智能识别本地和Docker实例
+- ✅ **选择性停止**：支持按模式停止实例
+- ✅ **资源清理优化**：彻底清理隔离模式产生的临时文件
+- ✅ **错误处理增强**：更好的错误信息和故障排除提示
 
-- **browser_network_requests**
-  - Title: List network requests
-  - Description: Returns all network requests since loading the page
-  - Parameters: None
-  - Read-only: **true**
+### v2.0.0 - 集群版本
+- ✅ **集群管理**：支持多实例并发
+- ✅ **隔离模式**：避免配置冲突  
+- ✅ **Docker支持**：容器化部署
+- ✅ **中文优化**：国内网站测试
+- ✅ **完整测试**：覆盖所有25个工具
+- ✅ **智能启动**：自动检测和配置
 
-<!-- NOTE: This has been generated via update-readme.js -->
+### 兼容性
+- 完全兼容原版MCP协议
+- 支持所有原版功能
+- 新增功能向后兼容
 
-- **browser_console_messages**
-  - Title: Get console messages
-  - Description: Returns all console messages
-  - Parameters: None
-  - Read-only: **true**
+## 📊 性能特性
 
-</details>
+### 并发处理能力
+- **多实例**: 支持最多5个并发实例
+- **负载均衡**: 智能任务分配
+- **故障隔离**: 单实例故障不影响整体服务
+- **资源优化**: 独立的资源管理和清理
 
-<details>
-<summary><b>Utilities</b></summary>
+### 监控和管理
+- **实时状态**: 智能检测运行状态
+- **健康检查**: 多层验证实例健康
+- **自动恢复**: 失败实例自动重试
+- **日志管理**: 详细的操作日志
 
-<!-- NOTE: This has been generated via update-readme.js -->
+## 📄 许可证
 
-- **browser_install**
-  - Title: Install the browser specified in the config
-  - Description: Install the browser specified in the config. Call this if you get an error about the browser not being installed.
-  - Parameters: None
-  - Read-only: **false**
+本项目基于 [Apache License 2.0](LICENSE) 开源。
 
-<!-- NOTE: This has been generated via update-readme.js -->
+## 🤝 贡献
 
-- **browser_close**
-  - Title: Close browser
-  - Description: Close the page
-  - Parameters: None
-  - Read-only: **true**
-
-<!-- NOTE: This has been generated via update-readme.js -->
-
-- **browser_resize**
-  - Title: Resize browser window
-  - Description: Resize the browser window
-  - Parameters:
-    - `width` (number): Width of the browser window
-    - `height` (number): Height of the browser window
-  - Read-only: **true**
-
-</details>
-
-<details>
-<summary><b>Tabs</b></summary>
-
-<!-- NOTE: This has been generated via update-readme.js -->
-
-- **browser_tab_list**
-  - Title: List tabs
-  - Description: List browser tabs
-  - Parameters: None
-  - Read-only: **true**
-
-<!-- NOTE: This has been generated via update-readme.js -->
-
-- **browser_tab_new**
-  - Title: Open a new tab
-  - Description: Open a new tab
-  - Parameters:
-    - `url` (string, optional): The URL to navigate to in the new tab. If not provided, the new tab will be blank.
-  - Read-only: **true**
-
-<!-- NOTE: This has been generated via update-readme.js -->
-
-- **browser_tab_select**
-  - Title: Select a tab
-  - Description: Select a tab by index
-  - Parameters:
-    - `index` (number): The index of the tab to select
-  - Read-only: **true**
-
-<!-- NOTE: This has been generated via update-readme.js -->
-
-- **browser_tab_close**
-  - Title: Close a tab
-  - Description: Close a tab
-  - Parameters:
-    - `index` (number, optional): The index of the tab to close. Closes current tab if not provided.
-  - Read-only: **false**
-
-</details>
-
-<details>
-<summary><b>Testing</b></summary>
-
-<!-- NOTE: This has been generated via update-readme.js -->
-
-- **browser_generate_playwright_test**
-  - Title: Generate a Playwright test
-  - Description: Generate a Playwright test for given scenario
-  - Parameters:
-    - `name` (string): The name of the test
-    - `description` (string): The description of the test
-    - `steps` (array): The steps of the test
-  - Read-only: **true**
-
-</details>
-
-<details>
-<summary><b>Vision mode</b></summary>
-
-<!-- NOTE: This has been generated via update-readme.js -->
-
-- **browser_screen_capture**
-  - Title: Take a screenshot
-  - Description: Take a screenshot of the current page
-  - Parameters: None
-  - Read-only: **true**
-
-<!-- NOTE: This has been generated via update-readme.js -->
-
-- **browser_screen_move_mouse**
-  - Title: Move mouse
-  - Description: Move mouse to a given position
-  - Parameters:
-    - `element` (string): Human-readable element description used to obtain permission to interact with the element
-    - `x` (number): X coordinate
-    - `y` (number): Y coordinate
-  - Read-only: **true**
-
-<!-- NOTE: This has been generated via update-readme.js -->
-
-- **browser_screen_click**
-  - Title: Click
-  - Description: Click left mouse button
-  - Parameters:
-    - `element` (string): Human-readable element description used to obtain permission to interact with the element
-    - `x` (number): X coordinate
-    - `y` (number): Y coordinate
-  - Read-only: **false**
-
-<!-- NOTE: This has been generated via update-readme.js -->
-
-- **browser_screen_drag**
-  - Title: Drag mouse
-  - Description: Drag left mouse button
-  - Parameters:
-    - `element` (string): Human-readable element description used to obtain permission to interact with the element
-    - `startX` (number): Start X coordinate
-    - `startY` (number): Start Y coordinate
-    - `endX` (number): End X coordinate
-    - `endY` (number): End Y coordinate
-  - Read-only: **false**
-
-<!-- NOTE: This has been generated via update-readme.js -->
-
-- **browser_screen_type**
-  - Title: Type text
-  - Description: Type text
-  - Parameters:
-    - `text` (string): Text to type into the element
-    - `submit` (boolean, optional): Whether to submit entered text (press Enter after)
-  - Read-only: **false**
-
-<!-- NOTE: This has been generated via update-readme.js -->
-
-- **browser_press_key**
-  - Title: Press a key
-  - Description: Press a key on the keyboard
-  - Parameters:
-    - `key` (string): Name of the key to press or a character to generate, such as `ArrowLeft` or `a`
-  - Read-only: **false**
-
-<!-- NOTE: This has been generated via update-readme.js -->
-
-- **browser_wait_for**
-  - Title: Wait for
-  - Description: Wait for text to appear or disappear or a specified time to pass
-  - Parameters:
-    - `time` (number, optional): The time to wait in seconds
-    - `text` (string, optional): The text to wait for
-    - `textGone` (string, optional): The text to wait for to disappear
-  - Read-only: **true**
-
-<!-- NOTE: This has been generated via update-readme.js -->
-
-- **browser_file_upload**
-  - Title: Upload files
-  - Description: Upload one or multiple files
-  - Parameters:
-    - `paths` (array): The absolute paths to the files to upload. Can be a single file or multiple files.
-  - Read-only: **false**
-
-<!-- NOTE: This has been generated via update-readme.js -->
-
-- **browser_handle_dialog**
-  - Title: Handle a dialog
-  - Description: Handle a dialog
-  - Parameters:
-    - `accept` (boolean): Whether to accept the dialog.
-    - `promptText` (string, optional): The text of the prompt in case of a prompt dialog.
-  - Read-only: **false**
-
-</details>
-
-
-<!--- End of tools generated section -->
+欢迎提交Issue和Pull Request！
+
+### 开发指南
+1. Fork本项目
+2. 创建功能分支
+3. 提交更改
+4. 创建Pull Request
+
+## 📞 支持
+
+- 📖 **文档**：查看 [README_CLUSTER.md](README_CLUSTER.md) 了解集群详情
+- 🐛 **Bug报告**：提交GitHub Issue
+- 💡 **功能建议**：欢迎在Issue中讨论
+
+## 🎊 快速命令参考
+
+```bash
+# 🚀 启动相关
+./start.sh                    # 启动本地集群（隔离模式）
+./start.sh --docker          # 启动Docker集群
+./start.sh --no-isolated     # 启动本地集群（非隔离）
+
+# 🛑 停止相关（🆕 智能升级）
+./stop.sh                    # 停止所有实例（智能检测）
+./stop.sh --local           # 仅停止本地实例
+./stop.sh --docker          # 仅停止Docker实例
+./stop.sh --force           # 强制停止并清理所有资源
+
+# 🧪 测试相关
+python3 test_all_tools_chinese.py    # 全工具测试
+python3 demo_complete.py            # 完整演示
+python3 test_cluster_management.py  # 集群管理测试
+
+# 📊 监控相关
+tail -f logs/mcp-*.log       # 查看实时日志
+docker ps --filter name=mcp  # 查看Docker实例
+lsof -i :9001-9005           # 查看端口占用
+```
+
+---
+
+**⭐ 如果这个项目对您有帮助，请给个Star支持！**

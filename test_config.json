@@ -1,0 +1,31 @@
+{
+  "cluster": {
+    "instances": [
+      {
+        "id": "mcp-1",
+        "port": 9001,
+        "url": "http://localhost:9001/sse"
+      }
+    ],
+    "max_concurrent_per_instance": 1,
+    "health_check_interval": 10,
+    "max_retries": 3
+  },
+  "browser": {
+    "headless": true,
+    "timeout": 30000,
+    "viewport": {
+      "width": 1280,
+      "height": 720
+    }
+  },
+  "network": {
+    "timeout": 30,
+    "retry_attempts": 3,
+    "retry_delay": 1
+  },
+  "logging": {
+    "level": "INFO",
+    "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  }
+}

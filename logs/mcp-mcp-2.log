@@ -1,0 +1,10 @@
+Listening on http://localhost:9002
+Put this in your client config:
+{
+  "mcpServers": {
+    "playwright": {
+      "url": "http://localhost:9002/sse"
+    }
+  }
+}
+If your client supports streamable HTTP, you can use the /mcp endpoint instead.

@@ -1,0 +1,29 @@
+{
+  "cluster": {
+    "instances": [
+      {
+        "id": "docker-mcp-1",
+        "port": 9006,
+        "url": "http://localhost:9006/mcp"
+      },
+      {
+        "id": "docker-mcp-2",
+        "port": 9007,
+        "url": "http://localhost:9007/mcp"
+      },
+      {
+        "id": "docker-mcp-3",
+        "port": 9008,
+        "url": "http://localhost:9008/mcp"
+      },
+      {
+        "id": "docker-mcp-5",
+        "port": 9009,
+        "url": "http://localhost:9009/mcp"
+      }
+    ],
+    "max_concurrent_per_instance": 1,
+    "health_check_interval": 10,
+    "max_retries": 3
+  }
+}

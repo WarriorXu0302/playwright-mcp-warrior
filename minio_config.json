@@ -1,0 +1,11 @@
+{
+    "endpoint": "127.0.0.1:9000",
+    "access_key": "minioadmin",
+    "secret_key": "minioadmin",
+    "secure": false,
+    "bucket_name": "playwright-screenshots",
+    "region": "cn-north-1",
+    "use_minio": true,
+    "local_backup": true,
+    "local_backup_dir": "/tmp/playwright-screenshots"
+} 
