@@ -10,6 +10,7 @@ import json
 import base64
 import logging
 from datetime import datetime
+from io import BytesIO
 
 # 添加 python 目录到路径
 sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'python'))
@@ -102,6 +103,11 @@ def test_save_base64():
     storage = get_minio_storage()
     
     # 保存截图
+    # 不需要使用BytesIO，这里直接使用Base64字符串
+    # 转换为正确的Base64格式（添加必要的前缀）
+    if not img_base64.startswith('data:image'):
+        img_base64 = f"data:image/png;base64,{img_base64}"
+    
     filename = f"demo_base64_{datetime.now().strftime('%Y%m%d_%H%M%S')}.png"
     result = storage.save_screenshot(img_base64, filename)
     
@@ -169,6 +175,11 @@ def simulate_playwright_screenshot():
     storage = get_minio_storage()
     
     # 从base64保存
+    # 不需要使用BytesIO，这里直接使用Base64字符串
+    # 转换为正确的Base64格式
+    if img_base64 and not img_base64.startswith('data:image'):
+        img_base64 = f"data:image/png;base64,{img_base64}"
+        
     if img_base64:
         base64_result = storage.save_screenshot(img_base64, "playwright_mock_screenshot.png")
         if base64_result.get("success"):

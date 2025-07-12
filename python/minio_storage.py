@@ -127,13 +127,17 @@ class MinioStorage:
         """
         try:
             # 解码 Base64 数据
-            if base64_data.startswith('data:image'):
-                # 处理 data URI 格式的 Base64 数据
-                _, encoded = base64_data.split(',', 1)
-                image_data = base64.b64decode(encoded)
+            if isinstance(base64_data, str):
+                if base64_data.startswith('data:image'):
+                    # 处理 data URI 格式的 Base64 数据
+                    _, encoded = base64_data.split(',', 1)
+                    image_data = base64.b64decode(encoded)
+                else:
+                    # 处理普通 Base64 数据
+                    image_data = base64.b64decode(base64_data)
             else:
-                # 处理普通 Base64 数据
-                image_data = base64.b64decode(base64_data)
+                # 处理已经是二进制数据的情况
+                image_data = base64_data
                 
             # 生成文件名
             if not filename:
@@ -167,10 +171,15 @@ class MinioStorage:
                 try:
                     bucket_name = self.config["bucket_name"]
                     
+                    # 使用BytesIO对象来支持read方法
+                    from io import BytesIO
+                    buffer = BytesIO(image_data)
+                    buffer.seek(0)
+                    
                     self.client.put_object(
                         bucket_name=bucket_name,
                         object_name=filename,
-                        data=image_data,
+                        data=buffer,
                         length=len(image_data),
                         content_type="image/png"
                     )
